@@ -1,0 +1,2 @@
+# StuckPixel
+StuckPixel for Wii
