@@ -356,20 +356,7 @@ void Texture::Refresh()
 void Texture::Draw(const f32 xpos, const f32 ypos, const f32 degrees,
                    const f32 scaleX, const f32 scaleY, const u32 color)
 {
-    if(degrees == 0.0f && scaleX == 1.0f &&  scaleY == 1.0f)
-    {
-        const f32 x1 = xpos + (w * 0.5f) + handlex - offsetx;
-        const f32 y1 = ypos + (h * 0.5f) + handley - offsety;
-        const f32 x2 = x1 + w;
-        const f32 y2 = y1 + h;
-        GRRLIB_DrawImgQuad((const guVector[4])
-            {{x1, y1, 0.0f}, {x2, y1, 0.0f}, {x2, y2, 0.0f}, {x1, y2, 0.0f}},
-            this, color);
-    }
-    else
-    {
-        GRRLIB_DrawImg(xpos, ypos, this, degrees, scaleX, scaleY, color);
-    }
+    GRRLIB_DrawImg(xpos, ypos, this, degrees, scaleX, scaleY, color);
 }
 
 /**
@@ -461,7 +448,7 @@ u8 Texture::GetAlpha(void)
 
 /**
  * Initialize video library. Call this once at the beginning your code.
- * @return A integer representating a code:
+ * @return A integer representing a code:
  *         -     0 : The operation completed successfully.
  *         -    -1 : Not enough memory is available to initialize video library.
  *         -    -2 : Failed to add the fat device driver to the devoptab.
