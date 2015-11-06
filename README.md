@@ -7,4 +7,4 @@ Stuck pixels can often be re-energized by rapidly turning them on and off.
 | ------------ | ------------------ |
 | HOME         | Exit               |
 | Left / Right | Change color       |
-| Top / Down   | Show random pixels |
+| Up / Down    | Show random pixels |
