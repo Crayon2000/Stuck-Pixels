@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
     while(1)
     {
-        WPAD_ScanPads();  // Scan the Wiimotes
+        WPAD_ScanPads(); // Scan the Wiimotes
         WPADData *PadData0 = WPAD_Data(WPAD_CHAN_0);
 
         if(PadData0->btns_d & WPAD_BUTTON_HOME)
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
             ShowRandom = true;
         }
 
-        if(ShowRandom)
+        if(ShowRandom == true)
         {
             for(u32 x = 0; x < Screen::GetWidth(); ++x)
             {
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
             }
         }
 
-        Screen::Render();  // Render the frame buffer to the TV
+        Screen::Render(); // Render the frame buffer to the TV
     }
 
     Screen::Exit();
