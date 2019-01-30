@@ -1,4 +1,5 @@
-#include <stdlib.h>
+#include <array>
+#include <random>
 #include <wiiuse/wpad.h>
 #include "grrlib_class.h"
 
@@ -11,11 +12,14 @@
 #define GRRLIB_AQUA    0x00FFFFFF
 #define GRRLIB_WHITE   0xFFFFFFFF
 
-static u32 ColorArray[] = {GRRLIB_BLACK, GRRLIB_RED, GRRLIB_LIME, GRRLIB_YELLOW,
-        GRRLIB_BLUE, GRRLIB_FUCHSIA, GRRLIB_AQUA, GRRLIB_WHITE};
-
 int main(int argc, char **argv)
 {
+    const std::array<u32, 8> ColorArray = {GRRLIB_BLACK, GRRLIB_RED, GRRLIB_LIME,
+        GRRLIB_YELLOW, GRRLIB_BLUE, GRRLIB_FUCHSIA, GRRLIB_AQUA, GRRLIB_WHITE};
+
+    std::default_random_engine Engine;
+    std::uniform_int_distribution<> RandomInt(0, ColorArray.size() - 1);
+
     Screen::Initialize();
     Screen::SetBackgroundColor(GRRLIB_BLACK);
 
@@ -23,7 +27,6 @@ int main(int argc, char **argv)
     WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC);
     WPAD_SetVRes(WPAD_CHAN_ALL, Screen::GetWidth(), Screen::GetHeight());
 
-    srand(time(NULL));
     s8 ColorScreen = 0;
     bool ShowRandom = true;
 
@@ -65,7 +68,7 @@ int main(int argc, char **argv)
             {
                 for(u32 y = 0; y < Screen::GetHeight(); ++y)
                 {
-                    Screen::SetPixel(x, y, ColorArray[rand() % 8]);
+                    Screen::SetPixel(x, y, ColorArray[RandomInt(Engine)]);
                 }
             }
         }
