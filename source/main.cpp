@@ -3,14 +3,14 @@
 #include <wiiuse/wpad.h>
 #include "grrlib_class.h"
 
-#define GRRLIB_BLACK   0x000000FF
-#define GRRLIB_RED     0xFF0000FF
-#define GRRLIB_LIME    0x00FF00FF
-#define GRRLIB_YELLOW  0xFFFF00FF
-#define GRRLIB_BLUE    0x0000FFFF
-#define GRRLIB_FUCHSIA 0xFF00FFFF
-#define GRRLIB_AQUA    0x00FFFFFF
-#define GRRLIB_WHITE   0xFFFFFFFF
+static constexpr u32 GRRLIB_BLACK   = 0x000000FF;
+static constexpr u32 GRRLIB_RED     = 0xFF0000FF;
+static constexpr u32 GRRLIB_LIME    = 0x00FF00FF;
+static constexpr u32 GRRLIB_YELLOW  = 0xFFFF00FF;
+static constexpr u32 GRRLIB_BLUE    = 0x0000FFFF;
+static constexpr u32 GRRLIB_FUCHSIA = 0xFF00FFFF;
+static constexpr u32 GRRLIB_AQUA    = 0x00FFFFFF;
+static constexpr u32 GRRLIB_WHITE   = 0xFFFFFFFF;
 
 int main(int argc, char **argv)
 {
