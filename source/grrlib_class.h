@@ -9,6 +9,7 @@
 
 #include <grrlib.h>
 #include <string>
+#include <memory>
 
 /**
  * Namespace containing all GRRLIB code.
@@ -29,20 +30,19 @@ public:
     Texture(const char *filename);
     Texture(const std::string &filename);
     Texture(const u32 w, const u32 h);
-    void Initialize(void);
     ~Texture();
 
-    u32 GetWidth();
-    u32 GetHeight();
-    u32 GetOffsetX();
-    u32 GetOffsetY();
+    [[nodiscard]] u32 GetWidth();
+    [[nodiscard]] u32 GetHeight();
+    [[nodiscard]] u32 GetOffsetX();
+    [[nodiscard]] u32 GetOffsetY();
     void SetOffset(u32 X, u32 Y);
     void SetOffsetX(u32 X);
     void SetOffsetY(u32 Y);
-    u32 GetHandleX();
-    u32 GetHandleY();
+    [[nodiscard]] u32 GetHandleX();
+    [[nodiscard]] u32 GetHandleY();
     void SetHandle(u32 X, u32 Y);
-    u32 GetPixel(const s32 x, const s32 y);
+    [[nodiscard]] u32 GetPixel(const s32 x, const s32 y);
     void SetPixel(const s32 x, const s32 y, const u32 color);
     void Refresh();
     void Load(const u8 *Buffer, const u32 Size = 0);
@@ -55,11 +55,15 @@ public:
               const f32 scaleX, const f32 scaleY);
     void Draw(const f32 xpos, const f32 ypos, const f32 degrees);
     void Draw(const f32 xpos, const f32 ypos);
-    void CopyScreen(s32 posx = 0, s32 posy = 0, bool clear = false);
+    void DrawTile(const f32 xpos, const f32 ypos, const f32 degrees,
+                  const f32 scaleX, const f32 scaleY, const u32 color, int frame);
+    void CopyScreen(u16 posx = 0, u16 posy = 0, bool clear = false);
     void SetColor(u32);
-    u32 GetColor(void);
+    [[nodiscard]] u32 GetColor();
     void SetAlpha(u8);
-    u8 GetAlpha(void);
+    [[nodiscard]] u8 GetAlpha();
+
+    [[nodiscard]] static std::unique_ptr<Texture> CreateFromPNG(const u8 *Buffer);
 private:
     void Assign(GRRLIB_texImg *other);
     u32 _Color;  /**< The color used to draw the texture. By default it is set to 0xFFFFFFFF. */
@@ -74,20 +78,20 @@ private:
  */
 namespace Screen
 {
-    s8 Initialize(void);
-    void Exit(void);
-    void Render(void);
+    s32 Initialize();
+    void Exit();
+    void Render();
 
     void SetBackgroundColor(u8 r, u8 g, u8 b, u8 a = 0xFF);
     void SetBackgroundColor(const u32 color);
     void FillScreen(const u32 color);
     void SetPixel(const f32 x, const f32 y, const u32 color);
     void Line(const f32 x1, const f32 y1, const f32 x2, const f32 y2, const u32 color);
-    void Rectangle(const f32 x, const f32 y, const f32 width, const f32 height, const u32 color, const u8 filled);
-    void Circle(const f32 x,  const f32 y,  const f32 radius, const u32 color, const u8 filled);
+    void Rectangle(const f32 x, const f32 y, const f32 width, const f32 height, const u32 color, const bool filled);
+    void Circle(const f32 x, const f32 y, const f32 radius, const u32 color, const u8 filled);
 
-    u32 GetWidth(void);
-    u32 GetHeight(void);
+    [[nodiscard]] u16 GetWidth();
+    [[nodiscard]] u16 GetHeight();
 
     bool ScreenShot(const char* filename);
     bool ScreenShot(const std::string &filename);

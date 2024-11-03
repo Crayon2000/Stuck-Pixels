@@ -14,7 +14,7 @@ static constexpr u32 GRRLIB_WHITE   = 0xFFFFFFFF;
 
 int main(int argc, char **argv)
 {
-    const std::array<u32, 8> ColorArray = {GRRLIB_BLACK, GRRLIB_RED, GRRLIB_LIME,
+    constexpr std::array<u32, 8> ColorArray = {GRRLIB_BLACK, GRRLIB_RED, GRRLIB_LIME,
         GRRLIB_YELLOW, GRRLIB_BLUE, GRRLIB_FUCHSIA, GRRLIB_AQUA, GRRLIB_WHITE};
 
     std::default_random_engine Engine;
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     s8 ColorScreen = 0;
     bool ShowRandom = true;
 
-    while(1)
+    while(true)
     {
         WPAD_ScanPads(); // Scan the Wiimotes
         WPADData *PadData0 = WPAD_Data(WPAD_CHAN_0);
@@ -64,9 +64,9 @@ int main(int argc, char **argv)
 
         if(ShowRandom == true)
         {
-            for(u32 x = 0; x < Screen::GetWidth(); ++x)
+            for(u16 x = 0; x < Screen::GetWidth(); ++x)
             {
-                for(u32 y = 0; y < Screen::GetHeight(); ++y)
+                for(u16 y = 0; y < Screen::GetHeight(); ++y)
                 {
                     Screen::SetPixel(x, y, ColorArray[RandomInt(Engine)]);
                 }

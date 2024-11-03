@@ -3,9 +3,13 @@
 /**
  * Constructor for the Texture class.
  */
-Texture::Texture()
+Texture::Texture() :
+    _Color(0xFFFFFFFF),
+    _ScaleX(1.0f),
+    _ScaleY(1.0f),
+    _Angle(0.0f)
 {
-    Initialize();
+    data = nullptr;
 }
 
 /**
@@ -14,9 +18,8 @@ Texture::Texture()
  * @param Size The size of the buffer to load. This parameter is not required.
  * @see Load(const u8 *, const u32)
  */
-Texture::Texture(const u8 *Buffer, const u32 Size)
+Texture::Texture(const u8 *Buffer, const u32 Size) : Texture()
 {
-    Initialize();
     Load(Buffer, Size);
 }
 
@@ -25,9 +28,8 @@ Texture::Texture(const u8 *Buffer, const u32 Size)
  * @param filename The JPEG, PNG or Bitmap file to load.
  * @see Load(const char *)
  */
-Texture::Texture(const char *filename)
+Texture::Texture(const char *filename) : Texture()
 {
-    Initialize();
     Load(filename);
 }
 
@@ -36,9 +38,8 @@ Texture::Texture(const char *filename)
  * @param filename The JPEG, PNG or Bitmap file to load.
  * @see Load(const std::string &)
  */
-Texture::Texture(const std::string &filename)
+Texture::Texture(const std::string &filename) : Texture()
 {
-    Initialize();
     Load(filename);
 }
 
@@ -48,23 +49,9 @@ Texture::Texture(const std::string &filename)
  * @param h Height of the new texture to create.
  * @see Create()
  */
-Texture::Texture(const u32 w, const u32 h)
+Texture::Texture(const u32 w, const u32 h) : Texture()
 {
-    Initialize();
     Create(w, h);
-}
-
-/**
- * Initialize a constructor with default values.
- */
-void Texture::Initialize(void)
-{
-    data = nullptr;
-
-    _Color = 0xFFFFFFFF;
-    _ScaleX = 1.0f;
-    _ScaleY = 1.0f;
-    _Angle = 0.0f;
 }
 
 /**
@@ -144,6 +131,17 @@ void Texture::Load(const u8 *Buffer, const u32 Size)
 }
 
 /**
+ * Create a texture from a png file buffer.
+ * @param Buffer The buffer to load.
+ */
+std::unique_ptr<Texture> Texture::CreateFromPNG(const u8 *Buffer)
+{
+    auto texture = std::make_unique<Texture>();
+    texture->Assign(GRRLIB_LoadTexturePNG(Buffer));
+    return texture;
+}
+
+/**
  * Load a texture from a file.
  * @param filename The JPEG, PNG or Bitmap file to load.
  */
@@ -151,7 +149,7 @@ void Texture::Load(const char *filename)
 {
     u8 *mydata;
 
-    int FileLength = GRRLIB_LoadFile(filename, &mydata);
+    const int FileLength = GRRLIB_LoadFile(filename, &mydata);
     if(FileLength <= 0)
     {   // Loading the file failed
         return;
@@ -201,7 +199,7 @@ void Texture::Create(const u32 w, const u32 h, const u32 Color)
     ofnormaltexy = 0.0f;
 
     // Initialize the texture with a color
-    u8* bp = (u8*)data;
+    u8* bp = static_cast<u8*>(data);
     for(u32 y = 0; y < h; ++y)
     {
         for(u32 x = 0; x < w; ++x)
@@ -396,12 +394,28 @@ void Texture::Draw(const f32 xpos, const f32 ypos)
 }
 
 /**
+ * Draw a tile.
+ * @param xpos Specifies the x-coordinate of the upper-left corner.
+ * @param ypos Specifies the y-coordinate of the upper-left corner.
+ * @param degrees Angle of rotation.
+ * @param scaleX Specifies the x-coordinate scale. -1 could be used for flipping the texture horizontally.
+ * @param scaleY Specifies the y-coordinate scale. -1 could be used for flipping the texture vertically.
+ * @param color Color in RGBA format.
+ * @param frame Specifies the frame to draw.
+ */
+void Texture::DrawTile(const f32 xpos, const f32 ypos, const f32 degrees,
+                   const f32 scaleX, const f32 scaleY, const u32 color, int frame)
+{
+    GRRLIB_DrawTile(xpos, ypos, this, degrees, scaleX, scaleY, color, frame);
+}
+
+/**
  * Make a snapshot of the screen in a texture WITHOUT ALPHA LAYER.
  * @param posx top left corner of the grabbed part. Default is 0.
  * @param posy top left corner of the grabbed part. Default is 0.
  * @param clear When this flag is set to true, the screen is cleared after copy. Set to false by default.
  */
-void Texture::CopyScreen(s32 posx, s32 posy, bool clear)
+void Texture::CopyScreen(u16 posx, u16 posy, bool clear)
 {
     GRRLIB_Screen2Texture(posx, posy, this, clear);
 }
@@ -419,7 +433,7 @@ void Texture::SetColor(u32 Color)
  * Get the color of the texture.
  * @return The color of the texture in RGBA format.
  */
-u32 Texture::GetColor(void)
+u32 Texture::GetColor()
 {
     return _Color;
 }
@@ -437,7 +451,7 @@ void Texture::SetAlpha(u8 Alpha)
  * Get the alpha of the texture.
  * @return Alpha color (0-255).
  */
-u8 Texture::GetAlpha(void)
+u8 Texture::GetAlpha()
 {
     return A(_Color);
 }
@@ -453,7 +467,7 @@ u8 Texture::GetAlpha(void)
  *         -    -3 : Failed to initialize the font engine.
  * @see Exit
  */
-s8 Screen::Initialize(void)
+s32 Screen::Initialize()
 {
     return GRRLIB_Init();
 }
@@ -463,7 +477,7 @@ s8 Screen::Initialize(void)
  * Ensure this function is only ever called once
  * and only if the setup function has been called.
  */
-void Screen::Exit(void)
+void Screen::Exit()
 {
     GRRLIB_Exit();
 }
@@ -501,7 +515,7 @@ void Screen::FillScreen(const u32 color)
 /**
  * Call this function after drawing.
  */
-void Screen::Render(void)
+void Screen::Render()
 {
     GRRLIB_Render();
 }
@@ -537,9 +551,9 @@ void Screen::Line(const f32 x1, const f32 y1, const f32 x2, const f32 y2, const 
  * @param width The width of the rectangle.
  * @param height The height of the rectangle.
  * @param color The color of the rectangle in RGBA format.
- * @param filled Set to true to fill the rectangle.
+ * @param filled Set to @c true to fill the rectangle.
  */
-void Screen::Rectangle(const f32 x, const f32 y, const f32 width, const f32 height, const u32 color, const u8 filled)
+void Screen::Rectangle(const f32 x, const f32 y, const f32 width, const f32 height, const u32 color, const bool filled)
 {
     GRRLIB_Rectangle(x, y, width,  height, color, filled);
 }
@@ -550,7 +564,7 @@ void Screen::Rectangle(const f32 x, const f32 y, const f32 width, const f32 heig
  * @param y Specifies the y-coordinate of the circle.
  * @param radius The radius of the circle.
  * @param color The color of the circle in RGBA format.
- * @param filled Set to true to fill the circle.
+ * @param filled Set to @c true to fill the circle.
  */
 void Screen::Circle(const f32 x, const f32 y, const f32 radius, const u32 color, const u8 filled)
 {
@@ -585,7 +599,7 @@ bool Screen::ScreenShot(const std::string &filename)
  * Return the width of the screen in pixels.
  * @return The width in pixels.
  */
-u32 Screen::GetWidth(void)
+u16 Screen::GetWidth()
 {
     return rmode->fbWidth;
 }
@@ -594,7 +608,7 @@ u32 Screen::GetWidth(void)
  * Return the height of the screen in pixels.
  * @return The height in pixels.
  */
-u32 Screen::GetHeight(void)
+u16 Screen::GetHeight()
 {
     return rmode->efbHeight;
 }
@@ -609,7 +623,7 @@ u32 Screen::GetHeight(void)
  */
 void FX::FlipH(const Texture *texsrc, Texture *texdest)
 {
-    GRRLIB_BMFX_FlipH((GRRLIB_texImg *)texsrc, (GRRLIB_texImg *)texdest);
+    GRRLIB_BMFX_FlipH(reinterpret_cast<const GRRLIB_texImg *>(texsrc), reinterpret_cast<GRRLIB_texImg *>(texdest));
 }
 /**
  * Flip texture vertical.
@@ -619,7 +633,7 @@ void FX::FlipH(const Texture *texsrc, Texture *texdest)
  */
 void FX::FlipV(const Texture *texsrc, Texture *texdest)
 {
-    GRRLIB_BMFX_FlipV((GRRLIB_texImg *)texsrc, (GRRLIB_texImg *)texdest);
+    GRRLIB_BMFX_FlipV(reinterpret_cast<const GRRLIB_texImg *>(texsrc), reinterpret_cast<GRRLIB_texImg *>(texdest));
 }
 /**
  * Change a texture to gray scale.
@@ -629,7 +643,7 @@ void FX::FlipV(const Texture *texsrc, Texture *texdest)
  */
 void FX::Grayscale(const Texture *texsrc, Texture *texdest)
 {
-    GRRLIB_BMFX_Grayscale((GRRLIB_texImg *)texsrc, (GRRLIB_texImg *)texdest);
+    GRRLIB_BMFX_Grayscale(reinterpret_cast<const GRRLIB_texImg *>(texsrc), reinterpret_cast<GRRLIB_texImg *>(texdest));
 }
 /**
  * Change a texture to sepia (old photo style).
@@ -639,7 +653,7 @@ void FX::Grayscale(const Texture *texsrc, Texture *texdest)
  */
 void FX::Sepia(const Texture *texsrc, Texture *texdest)
 {
-    GRRLIB_BMFX_Sepia((GRRLIB_texImg *)texsrc, (GRRLIB_texImg *)texdest);
+    GRRLIB_BMFX_Sepia(reinterpret_cast<const GRRLIB_texImg *>(texsrc), reinterpret_cast<GRRLIB_texImg *>(texdest));
 }
 /**
  * Invert colors of the texture.
@@ -649,7 +663,7 @@ void FX::Sepia(const Texture *texsrc, Texture *texdest)
  */
 void FX::Invert(const Texture *texsrc, Texture *texdest)
 {
-    GRRLIB_BMFX_Invert((GRRLIB_texImg *)texsrc, (GRRLIB_texImg *)texdest);
+    GRRLIB_BMFX_Invert(reinterpret_cast<const GRRLIB_texImg *>(texsrc), reinterpret_cast<GRRLIB_texImg *>(texdest));
 }
 /**
  * A texture effect (Blur).
@@ -660,7 +674,7 @@ void FX::Invert(const Texture *texsrc, Texture *texdest)
  */
 void FX::Blur(const Texture *texsrc, Texture *texdest, const u32 factor)
 {
-    GRRLIB_BMFX_Blur((GRRLIB_texImg *)texsrc, (GRRLIB_texImg *)texdest, factor);
+    GRRLIB_BMFX_Blur(reinterpret_cast<const GRRLIB_texImg *>(texsrc), reinterpret_cast<GRRLIB_texImg *>(texdest), factor);
 }
 /**
  * A texture effect (Scatter).
@@ -671,7 +685,7 @@ void FX::Blur(const Texture *texsrc, Texture *texdest, const u32 factor)
  */
 void FX::Scatter(const Texture *texsrc, Texture *texdest, const u32 factor)
 {
-    GRRLIB_BMFX_Scatter((GRRLIB_texImg *)texsrc, (GRRLIB_texImg *)texdest, factor);
+    GRRLIB_BMFX_Scatter(reinterpret_cast<const GRRLIB_texImg *>(texsrc), reinterpret_cast<GRRLIB_texImg *>(texdest), factor);
 }
 /**
  * A texture effect (Pixelate).
@@ -682,5 +696,5 @@ void FX::Scatter(const Texture *texsrc, Texture *texdest, const u32 factor)
  */
 void FX::Pixelate(const Texture *texsrc, Texture *texdest, const u32 factor)
 {
-    GRRLIB_BMFX_Pixelate((GRRLIB_texImg *)texsrc, (GRRLIB_texImg *)texdest, factor);
+    GRRLIB_BMFX_Pixelate(reinterpret_cast<const GRRLIB_texImg *>(texsrc), reinterpret_cast<GRRLIB_texImg *>(texdest), factor);
 }
