@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     s8 ColorScreen = 0;
     bool ShowRandom = true;
 
-    while(true)
+    while(SYS_MainLoop())
     {
         WPAD_ScanPads(); // Scan the Wiimotes
         WPADData *PadData0 = WPAD_Data(WPAD_CHAN_0);
